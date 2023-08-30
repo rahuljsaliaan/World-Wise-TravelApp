@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useState,
-  useEffect,
-  useContext,
-  useReducer,
-} from "react";
+import { createContext, useEffect, useContext, useReducer } from "react";
 
 const BASE_URL = "http://localhost:9000";
 
@@ -30,10 +24,18 @@ function reducer(state, action) {
       return { ...state, isLoading: false, currentCity: action.payload };
 
     case "city/created":
-      return;
+      return {
+        ...state,
+        isLoading: false,
+        cities: [...state.cities, action.payload],
+      };
 
     case "city/deleted":
-      return;
+      return {
+        ...state,
+        isLoading: false,
+        cities: state.cities.filter((city) => city?.id !== action.payload),
+      };
 
     case "rejected":
       return { ...state, isLoading: false, error: action.payload };
@@ -48,10 +50,6 @@ function CitiesProvider({ children }) {
     reducer,
     initialState
   );
-
-  // const [cities, setCities] = useState([]);
-  // const [isLoading, setIsLoading] = useState(false);
-  // const [currentCity, setCurrentCity] = useState({});
 
   useEffect(function () {
     (async function () {
@@ -119,7 +117,7 @@ function CitiesProvider({ children }) {
         method: "DELETE",
       });
 
-      dispatch({ type: "city/deleted" });
+      dispatch({ type: "city/deleted", payload: id });
     } catch (error) {
       dispatch({
         type: "rejected",
