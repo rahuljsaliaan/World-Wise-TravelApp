@@ -71,15 +71,13 @@ function CitiesProvider({ children }) {
     })();
   }, []);
 
-  async function getCity(id) {
+  function getCity(id) {
     try {
       if (id === currentCity.id) return;
 
       dispatch({ type: "loading" });
 
-      const response = await fetch(`${BASE_URL}/cities/${id}`);
-
-      const data = await response.json();
+      const data = cities.find((city) => city.id === id);
 
       dispatch({ type: "city/loaded", payload: data });
     } catch (error) {
@@ -106,6 +104,7 @@ function CitiesProvider({ children }) {
 
       dispatch({ type: "city/created", payload: data });
     } catch (error) {
+      console.log(error);
       dispatch({
         type: "rejected",
         payload: "There was an error creating city...!",

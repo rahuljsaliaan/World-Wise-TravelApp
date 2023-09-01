@@ -80,7 +80,7 @@ function Map() {
           url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
         />
         {/* Set all the markers before hand and not after clicking on a city */}
-        {cities.map((city) => (
+        {cities?.map((city) => (
           <Marker
             position={[city?.position.lat, city?.position.lng]}
             key={city.id}
