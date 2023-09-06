@@ -60,6 +60,7 @@ function CitiesProvider({ children }) {
         const response = await fetch(`${BASE_URL}/cities`);
 
         const data = await response.json();
+        console.log(data);
 
         dispatch({ type: "cities/loaded", payload: data });
       } catch (error) {
