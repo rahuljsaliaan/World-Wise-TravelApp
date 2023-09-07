@@ -30,7 +30,7 @@ function City() {
     function () {
       getCity(+id);
     },
-    [id]
+    [id, getCity]
   );
 
   if (isLoading) return <Spinner />;

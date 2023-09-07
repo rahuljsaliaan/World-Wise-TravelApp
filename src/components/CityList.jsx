@@ -9,8 +9,6 @@ function CityList() {
 
   if (isLoading) return <Spinner />;
 
-  console.log(cities);
-
   if (!cities?.length)
     return (
       <Message
