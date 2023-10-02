@@ -12,7 +12,7 @@ import styles from "./Map.module.css";
 import { useEffect, useState } from "react";
 import { useCities } from "../contexts/CitiesContext";
 import { useGeolocation } from "../hooks/useGeolocation";
-import { useURLLocation } from "../hooks/useUrlLocation";
+import { useURLLocation } from "../hooks/useURLLocation";
 import Button from "./Button";
 
 function Map() {
