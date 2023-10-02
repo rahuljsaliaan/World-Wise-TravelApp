@@ -6,7 +6,10 @@ import {
   useCallback,
 } from "react";
 
-const BASE_URL = "http://localhost:9000";
+// const BASE_URL = "http://localhost:9000";
+const API_KEY = "$2b$10$irYLZBjxwe50Mepn.GukxuchuufY.N/KdwfP/aGkSLm1OX.rtb7He";
+const BIN_URL = "https://api.jsonbin.io/v3/b/";
+const BIN_ID = "64f0ba0c8d92e126ae655887";
 
 const CitiesContext = createContext();
 
@@ -41,7 +44,7 @@ function reducer(state, action) {
       return {
         ...state,
         isLoading: false,
-        cities: state.cities.filter((city) => city?.id !== action.payload),
+        cities: action.payload,
       };
 
     case "rejected":
@@ -63,11 +66,17 @@ function CitiesProvider({ children }) {
       try {
         dispatch({ type: "loading" });
 
-        const response = await fetch(`${BASE_URL}/cities`);
+        const response = await fetch(`${BIN_URL}${BIN_ID}/latest`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Master-Key": API_KEY,
+          },
+        });
 
         const data = await response.json();
 
-        dispatch({ type: "cities/loaded", payload: data });
+        dispatch({ type: "cities/loaded", payload: data.record.cities });
       } catch (error) {
         dispatch({
           type: "rejected",
@@ -101,17 +110,55 @@ function CitiesProvider({ children }) {
     try {
       dispatch({ type: "loading" });
 
-      const response = await fetch(`${BASE_URL}/cities`, {
-        method: "POST",
-        body: JSON.stringify(newCity),
+      const response = await fetch(`${BIN_URL}${BIN_ID}/latest`, {
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
+          "X-Master-Key": API_KEY,
         },
       });
 
-      const data = await response.json();
+      if (!response.ok) {
+        // Handle the case where the fetch fails
+        throw new Error("Failed to fetch data from JSONBin.io");
+      }
 
-      dispatch({ type: "city/created", payload: data });
+      const currentData = await response.json();
+
+      // 2. Modify the data (assuming newCity has the changes)
+
+      newCity.id = new Date().toISOString();
+
+      const updatedData = {
+        cities: [...currentData.record.cities, newCity],
+      };
+
+      // 3. Send the updated data back to JSONBin.io
+      const updateResponse = await fetch(`${BIN_URL}${BIN_ID}`, {
+        method: "PUT", // Use PUT to update the entire data
+        body: JSON.stringify(updatedData),
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": API_KEY,
+        },
+      });
+
+      await updateResponse.json();
+
+      const updatedResponse = await fetch(`${BIN_URL}${BIN_ID}/latest`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": API_KEY,
+        },
+      });
+
+      const data = await updatedResponse.json();
+
+      dispatch({
+        type: "city/created",
+        payload: data.record.cities.find((item) => item.id === newCity.id),
+      });
     } catch (error) {
       dispatch({
         type: "rejected",
@@ -123,11 +170,54 @@ function CitiesProvider({ children }) {
   async function deleteCity(id) {
     try {
       dispatch({ type: "loading" });
-      await fetch(`${BASE_URL}/cities/${id}`, {
-        method: "DELETE",
+
+      const response = await fetch(`${BIN_URL}${BIN_ID}/latest`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": API_KEY,
+        },
       });
 
-      dispatch({ type: "city/deleted", payload: id });
+      if (!response.ok) {
+        // Handle the case where the fetch fails
+        throw new Error("Failed to fetch data from JSONBin.io");
+      }
+
+      const currentData = await response.json();
+
+      // 2. Modify the data (assuming newCity has the changes
+
+      const updatedData = {
+        cities: currentData.record.cities.filter((city) => city.id !== id),
+      };
+
+      // 3. Send the updated data back to JSONBin.io
+      const updateResponse = await fetch(`${BIN_URL}${BIN_ID}`, {
+        method: "PUT", // Use PUT to update the entire data
+        body: JSON.stringify(updatedData),
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": API_KEY,
+        },
+      });
+
+      await updateResponse.json();
+
+      const updatedResponse = await fetch(`${BIN_URL}${BIN_ID}/latest`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": API_KEY,
+        },
+      });
+
+      const data = await updatedResponse.json();
+
+      dispatch({
+        type: "city/deleted",
+        payload: data.record.cities,
+      });
     } catch (error) {
       dispatch({
         type: "rejected",
