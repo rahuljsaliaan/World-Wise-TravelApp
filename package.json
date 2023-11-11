@@ -1,7 +1,8 @@
 {
   "name": "world-wise",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "World-Wise: Your Travel Companion for Exploring and Remembering. Discover new places, mark your adventures on the map, and create lasting memories",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,6 +11,8 @@
     "preview": "vite preview",
     "server": "json-server --watch data/cities.json --port 9000"
   },
+  "author": "Rahul J",
+  "license": "MIT",
   "dependencies": {
     "eslint-config-react-app": "^7.0.1",
     "json-server": "^0.17.3",
